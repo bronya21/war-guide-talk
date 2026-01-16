@@ -1,0 +1,44 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+      
+    - name: 解压项目文件
+      run: |
+        unzip -q project.zip
+        rm project.zip
+        ls -la  # 查看文件列表
+        
+    - name: 设置环境
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          python3-pip \
+          git \
+          zip \
+          unzip \
+          openjdk-11-jdk
+        
+    - name: 安装Buildozer
+      run: |
+        pip3 install buildozer cython==0.29.33
+        
+    - name: 构建APK
+      run: |
+        buildozer android debug
+        
+    - name: 上传APK
+      uses: actions/upload-artifact@v3
+      with:
+        name: WAR-GUIDE-TALK-APK
+        path: bin/*.apk
